@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.PrePersist;
 
 @Entity
 @Table(name = "turma")
@@ -71,14 +70,6 @@ public class TurmaEntity {
 
     public void setPeriodoLetivo(PeriodoLetivoEntity periodoLetivo) {
         this.periodoLetivo = periodoLetivo;
-    }
-
-
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
     }
 
     public LocalDateTime getCreatedAt() {
