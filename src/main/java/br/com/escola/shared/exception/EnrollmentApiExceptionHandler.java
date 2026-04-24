@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import br.com.escola.enrollment.adapter.in.web.MatriculaController;
 import br.com.escola.enrollment.domain.exception.MatriculaAlunoNaoEncontradoException;
 import br.com.escola.enrollment.domain.exception.MatriculaPeriodoNaoEncontradoException;
+import br.com.escola.enrollment.domain.exception.MatriculaStatusInvalidoException;
 import br.com.escola.enrollment.domain.exception.MatriculaTurmaNaoEncontradaException;
 import br.com.escola.enrollment.domain.exception.TurmaPeriodoInconsistenteException;
 
@@ -29,6 +30,11 @@ public class EnrollmentApiExceptionHandler {
     @ExceptionHandler(MatriculaPeriodoNaoEncontradoException.class)
     public ResponseEntity<Map<String, String>> handlePeriodoNotFound(MatriculaPeriodoNaoEncontradoException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(MatriculaStatusInvalidoException.class)
+    public ResponseEntity<Map<String, String>> handleStatusInvalido(MatriculaStatusInvalidoException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 
     @ExceptionHandler(TurmaPeriodoInconsistenteException.class)
