@@ -1,5 +1,7 @@
 package br.com.escola.academiccatalog.application.usecase;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 
 import br.com.escola.academiccatalog.adapter.in.web.PeriodoLetivoRequest;
@@ -26,6 +28,7 @@ public class CriarPeriodoLetivoUseCase {
         periodoLetivoEntity.setNome(request.nome());
         periodoLetivoEntity.setDataInicio(request.dataInicio());
         periodoLetivoEntity.setDataFim(request.dataFim());
+        periodoLetivoEntity.setCreatedAt(LocalDateTime.now());
 
         PeriodoLetivoEntity persisted = periodoLetivoJpaRepository.save(periodoLetivoEntity);
 

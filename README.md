@@ -86,3 +86,4 @@ No profile local:
 - Evoluir `accesscontrol` para login/token conforme estratégia final;
 - Completar fluxo de consulta de aluno;
 - Implementar módulos `academiccatalog` e `enrollment`.
+
