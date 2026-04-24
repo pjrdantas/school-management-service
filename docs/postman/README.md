@@ -1,34 +1,110 @@
-# Testes no Postman para subtasks da Sprint 1
+# Como usar os testes no Postman (passo a passo)
 
-Este diretório contém uma collection do Postman para validar os endpoints do backend conforme as subtasks do Kanban compartilhadas.
+Se você nunca usou collection no Postman, siga exatamente esta ordem.
 
-## Arquivos
+## 1) Suba o backend localmente
 
-- `school-management-sprint1-subtasks.postman_collection.json`
-- `school-management-local.postman_environment.json`
-
-## Pré-requisitos
-
-1. Subir a aplicação localmente na porta `8080`.
-2. Definir credenciais de Basic Auth fixas (o projeto protege os endpoints):
+No terminal, na raiz do projeto:
 
 ```bash
 SPRING_SECURITY_USER_NAME=admin SPRING_SECURITY_USER_PASSWORD=admin ./mvnw spring-boot:run
 ```
 
-3. Importar no Postman:
-   - a collection;
-   - o environment local.
+A API deve ficar em `http://localhost:8080`.
 
-## Como executar
+---
 
-1. Selecione o environment `School Management - Local`.
-2. Execute a pasta `00 - Setup` para gerar os IDs base (`alunoId`, `periodoLetivoId`, `turmaId`, `matriculaId`).
-3. Execute as demais pastas por contexto:
-   - `01 - Aluno`
-   - `02 - Catálogo Acadêmico`
-   - `03 - Matrícula`
-4. Para rodar tudo automaticamente, use o **Collection Runner**.
+## 2) Abra o Postman e importe os 2 arquivos
+
+No Postman:
+
+1. Clique em **Import** (canto superior esquerdo).
+2. Vá em **Upload Files**.
+3. Selecione estes dois arquivos:
+   - `docs/postman/school-management-sprint1-subtasks.postman_collection.json`
+   - `docs/postman/school-management-local.postman_environment.json`
+4. Clique em **Import**.
+
+---
+
+## 3) Ative o environment correto
+
+No canto superior direito do Postman (dropdown de environment):
+
+1. Selecione **School Management - Local**.
+2. Confirme os valores:
+   - `baseUrl = http://localhost:8080`
+   - `auth_user = admin`
+   - `auth_password = admin`
+
+---
+
+## 4) Rode os requests na ordem certa
+
+Na collection **School Management - Sprint 1 Subtasks**:
+
+### Passo A — Pasta `00 - Setup`
+
+Execute os requests dessa pasta **de cima para baixo** clicando em **Send**.
+
+Isso cria dados base e salva variáveis automaticamente:
+- `alunoId`
+- `periodoLetivoId`
+- `turmaId`
+
+> Sem esse passo, os testes das outras pastas podem falhar.
+
+### Passo B — Pasta `01 - Aluno`
+
+Execute os cenários de cadastro e consulta de aluno.
+
+### Passo C — Pasta `02 - Catálogo Acadêmico`
+
+Execute criação/consulta de período e turma.
+
+### Passo D — Pasta `03 - Matrícula`
+
+Execute criação de matrícula e filtros.
+
+---
+
+## 5) Como ver se passou ou falhou
+
+Após clicar em **Send**:
+
+- Aba **Test Results**: mostra cada assert.
+- Verde = passou.
+- Vermelho = falhou.
+
+Também pode usar o **Runner**:
+
+1. Abra a collection.
+2. Clique em **Run**.
+3. Selecione o environment **School Management - Local**.
+4. Clique em **Run School Management - Sprint 1 Subtasks**.
+
+---
+
+## Problemas comuns (e solução rápida)
+
+### 401 Unauthorized
+- Confirme se a API foi iniciada com:
+  - `SPRING_SECURITY_USER_NAME=admin`
+  - `SPRING_SECURITY_USER_PASSWORD=admin`
+- Confirme se o environment selecionado é **School Management - Local**.
+
+### 404 / conexão recusada
+- API não está rodando.
+- Confirme `http://localhost:8080/actuator/health` no navegador ou Postman.
+
+### Variáveis vazias (`{{alunoId}}`, etc.)
+- Execute novamente a pasta `00 - Setup`.
+
+### Falha em `KAN-37 - Rejeitar turma duplicada`
+- Esse cenário depende de criação prévia na própria execução.
+- Rode a pasta `02 - Catálogo Acadêmico` completa em sequência.
+
+---
 
 ## Mapeamento para subtasks
 
@@ -48,8 +124,3 @@ SPRING_SECURITY_USER_NAME=admin SPRING_SECURITY_USER_PASSWORD=admin ./mvnw sprin
 - `KAN-44` (filtro por aluno): `03 - Matrícula / KAN-44 - Filtrar por aluno`.
 - `KAN-45` (filtro por turma): `03 - Matrícula / KAN-45 - Filtrar por turma`.
 - `KAN-46` (filtro por período letivo): `03 - Matrícula / KAN-46 - Filtrar por período letivo`.
-
-## Observações
-
-- A collection usa variáveis de ambiente para reaproveitar IDs entre requests.
-- Os testes validam status HTTP, estrutura mínima do payload e regras críticas do fluxo.
