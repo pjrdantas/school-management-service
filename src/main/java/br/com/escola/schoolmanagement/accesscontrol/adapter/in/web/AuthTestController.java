@@ -1,4 +1,4 @@
-package br.com.escola.schoolmanagement.adapter.in.web;
+package br.com.escola.schoolmanagement.accesscontrol.adapter.in.web;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
