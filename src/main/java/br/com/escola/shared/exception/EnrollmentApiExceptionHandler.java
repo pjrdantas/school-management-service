@@ -32,7 +32,6 @@ public class EnrollmentApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
     }
 
-
     @ExceptionHandler(MatriculaStatusInvalidoException.class)
     public ResponseEntity<Map<String, String>> handleStatusInvalido(MatriculaStatusInvalidoException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));

@@ -95,8 +95,6 @@ class MatriculaControllerIntegrationTest {
                         .formatted(turmaId, periodoInvalido)));
     }
 
-
-
     @Test
     @WithMockUser
     void deveFiltrarMatriculasPorAluno() throws Exception {
@@ -236,8 +234,6 @@ class MatriculaControllerIntegrationTest {
 
         return objectMapper.readTree(responseBody).get("id").asLong();
     }
-
-
 
     private void criarMatricula(Long alunoId, Long turmaId, Long periodoId) throws Exception {
         String requestBody = """
