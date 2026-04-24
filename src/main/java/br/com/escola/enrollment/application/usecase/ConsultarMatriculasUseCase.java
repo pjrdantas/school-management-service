@@ -23,7 +23,7 @@ public class ConsultarMatriculasUseCase {
     public List<MatriculaResponse> executar(Long alunoId, Long turmaId, Long periodoLetivoId, String status) {
         MatriculaStatus matriculaStatus = parseStatus(status);
 
-        Specification<MatriculaEntity> spec = Specification.where(null);
+        Specification<MatriculaEntity> spec = (root, query, cb) -> cb.conjunction();
 
         if (alunoId != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("aluno").get("id"), alunoId));
