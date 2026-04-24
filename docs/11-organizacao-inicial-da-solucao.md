@@ -209,7 +209,7 @@ Responsavel por:
 
 ```text
 school-management-service
-  src/main/java/br/com/escola/schoolmanagement
+  src/main/java/br/com/escola
     accesscontrol
     studentmanagement
     academiccatalog

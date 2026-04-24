@@ -184,6 +184,7 @@ Este guia depende dos seguintes documentos:
 - `docs/10-convencoes-tecnicas-iniciais.md`
 - `docs/11-organizacao-inicial-da-solucao.md`
 - `docs/12-padroes-minimos-de-estrutura-e-responsabilidade.md`
+- `docs/14-definition-of-structure-done.md`
 
 ## Decisao Registrada
 
