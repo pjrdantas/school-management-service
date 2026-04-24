@@ -56,7 +56,7 @@ Modulos iniciais:
 
 Base de pacote recomendada:
 
-- `br.com.escola.schoolmanagement`
+- `br.com.escola`
 
 ### Frontend
 

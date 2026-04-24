@@ -11,7 +11,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>br.com.escola.schoolmanagement</groupId>
+	<groupId>br.com.escola</groupId>
 	<artifactId>school-management-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>school-management-service</name>
