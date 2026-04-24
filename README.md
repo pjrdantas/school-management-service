@@ -2,7 +2,6 @@
 
 API backend do MVP de gestão escolar, implementada em Spring Boot com arquitetura modular.
 
-
 ## Status atual do projeto
 
 Hoje o projeto já possui uma base funcional para os módulos iniciais de:

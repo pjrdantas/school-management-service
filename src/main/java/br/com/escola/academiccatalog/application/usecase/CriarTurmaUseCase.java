@@ -1,7 +1,5 @@
 package br.com.escola.academiccatalog.application.usecase;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 
 import br.com.escola.academiccatalog.adapter.in.web.TurmaRequest;
@@ -38,7 +36,6 @@ public class CriarTurmaUseCase {
         turmaEntity.setNome(request.nome());
         turmaEntity.setCapacidade(request.capacidade());
         turmaEntity.setPeriodoLetivo(periodoLetivo);
-        turmaEntity.setCreatedAt(LocalDateTime.now());
 
         TurmaEntity persisted = turmaJpaRepository.save(turmaEntity);
 
