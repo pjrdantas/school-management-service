@@ -4,6 +4,7 @@ import br.com.escola.schoolmanagement.studentmanagement.adapter.in.web.AlunoRequ
 import br.com.escola.schoolmanagement.studentmanagement.adapter.in.web.AlunoResponse;
 import br.com.escola.schoolmanagement.studentmanagement.adapter.out.persistence.entity.AlunoEntity;
 import br.com.escola.schoolmanagement.studentmanagement.adapter.out.persistence.repository.AlunoJpaRepository;
+import br.com.escola.schoolmanagement.studentmanagement.domain.exception.AlunoJaCadastradoException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +18,7 @@ public class CriarAlunoUseCase {
 
     public AlunoResponse executar(AlunoRequest request) {
         if (alunoJpaRepository.findByCpf(request.cpf()).isPresent()) {
-            throw new IllegalArgumentException("Já existe aluno cadastrado com este CPF");
+            throw new AlunoJaCadastradoException();
         }
 
         AlunoEntity alunoEntity = new AlunoEntity();
