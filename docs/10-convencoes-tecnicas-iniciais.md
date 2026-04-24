@@ -58,27 +58,27 @@ Exemplos:
 
 Manter a base:
 
-- `br.com.escola.academic`
+- `br.com.escola`
 
 ### Organizacao de pacote
 
-Enquanto o sistema real ainda estiver sendo definido, manter a organizacao base atual:
+Organizacao base padrao:
 
 ```text
-br.com.escola.academic
+br.com.escola
   domain
   application
   adapter
   infrastructure
 ```
 
-Quando os modulos do produto real forem introduzidos, o padrao preferido sera por contexto de negocio, por exemplo:
+Nos modulos do produto real, o padrao preferido e por contexto de negocio, por exemplo:
 
 ```text
-br.com.escola.academic.accesscontrol
-br.com.escola.academic.studentmanagement
-br.com.escola.academic.academiccatalog
-br.com.escola.academic.enrollment
+br.com.escola.accesscontrol
+br.com.escola.studentmanagement
+br.com.escola.academiccatalog
+br.com.escola.enrollment
 ```
 
 ### Nomes de pacotes
