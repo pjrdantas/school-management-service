@@ -1,5 +1,7 @@
 package br.com.escola.studentmanagement.application.usecase;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 
 import br.com.escola.studentmanagement.adapter.in.web.AlunoRequest;
@@ -27,6 +29,7 @@ public class CriarAlunoUseCase {
         alunoEntity.setCpf(request.cpf());
         alunoEntity.setEmail(request.email());
         alunoEntity.setDataNascimento(request.dataNascimento());
+        alunoEntity.setCreatedAt(LocalDateTime.now());
 
         AlunoEntity persisted = alunoJpaRepository.save(alunoEntity);
 
