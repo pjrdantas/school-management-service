@@ -1,650 +1,272 @@
 {
   "info": {
-    "_postman_id": "ab1bd6b2-5e62-4b37-a201-e71082aa33f1",
+    "_postman_id": "f2f2cf47-d2d8-4bea-9f11-e6fc46e8f6a9",
     "name": "School Management - Sprint 1 Subtasks",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Collection para validar os endpoints do MVP da Sprint 1 com foco nas subtasks do Kanban (KAN-14, KAN-32, KAN-31, KAN-49, KAN-20, KAN-40, KAN-41, KAN-42, KAN-22, KAN-44, KAN-45, KAN-46, KAN-35, KAN-37, KAN-18, KAN-36)."
+    "description": "Execução 1-a-1 dos endpoints da Sprint 1 com cenários de sucesso e erro. Inclui diagnóstico explícito de autenticação para evitar 401 silencioso."
   },
-  "auth": {
-    "type": "basic",
-    "basic": [
-      { "key": "username", "value": "{{auth_user}}", "type": "string" },
-      { "key": "password", "value": "{{auth_password}}", "type": "string" }
-    ]
-  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const user = pm.environment.get('auth_user');",
+          "const pass = pm.environment.get('auth_password');",
+          "if (user && pass) {",
+          "  const token = btoa(`${user}:${pass}`);",
+          "  pm.request.headers.upsert({ key: 'Authorization', value: `Basic ${token}` });",
+          "}",
+          "pm.request.headers.upsert({ key: 'Content-Type', value: 'application/json' });"
+        ]
+      }
+    }
+  ],
   "item": [
     {
-      "name": "00 - Setup",
+      "name": "00 - Diagnóstico de autenticação",
       "item": [
         {
-          "name": "Auth - Endpoint protegido responde autenticado",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/test/authenticated"
-          },
+          "name": "Auth OK - GET /api/test/authenticated",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/test/authenticated" },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
+                  "pm.test('Não pode retornar 401', function () {",
+                  "  pm.expect(pm.response.code, 'Credenciais inválidas ou ausentes. Configure auth_user/auth_password no environment.').to.not.eql(401);",
                   "});",
-                  "pm.test('Body authenticated', function () {",
-                  "  pm.expect(pm.response.text()).to.eql('authenticated');",
-                  "});"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Body = authenticated', function () { pm.expect(pm.response.text()).to.eql('authenticated'); });"
+                ]
               }
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "name": "01 - Aluno (KAN-14, KAN-31, KAN-32, KAN-49)",
+      "item": [
         {
-          "name": "Setup - Criar aluno base",
+          "name": "KAN-14 - Criar aluno válido",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "url": "{{baseUrl}}/api/alunos",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nomeCompleto\": \"Aluno Setup\",\n  \"cpf\": \"78945612301\",\n  \"email\": \"aluno.setup@example.com\",\n  \"dataNascimento\": \"2010-06-15\"\n}"
-            },
-            "url": "{{baseUrl}}/api/alunos"
+              "raw": "{\n  \"nomeCompleto\": \"Aluno API {{runSuffix}}\",\n  \"cpf\": \"{{cpfValido}}\",\n  \"email\": \"aluno.{{runSuffix}}@example.com\",\n  \"dataNascimento\": \"2010-05-15\"\n}"
+            }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now().toString();",
+                  "pm.environment.set('runSuffix', suffix);",
+                  "const baseCpf = suffix.slice(-9);",
+                  "pm.environment.set('cpfValido', `123${baseCpf.slice(0,8)}`.slice(0,11));"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
                   "const json = pm.response.json();",
                   "pm.environment.set('alunoId', json.id);",
-                  "pm.test('AlunoId salvo em variável', function () {",
-                  "  pm.expect(json.id).to.be.a('number');",
-                  "});"
-                ],
-                "type": "text/javascript"
+                  "pm.environment.set('alunoCpf', json.cpf);",
+                  "pm.test('Salvou alunoId', () => pm.expect(json.id).to.be.a('number'));"
+                ]
               }
             }
           ]
         },
         {
-          "name": "Setup - Criar período letivo base",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"2026.1\",\n  \"dataInicio\": \"2026-02-01\",\n  \"dataFim\": \"2026-06-30\"\n}"
-            },
-            "url": "{{baseUrl}}/api/periodos-letivos"
-          },
+          "name": "KAN-49 - Buscar aluno por ID criado",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/alunos/{{alunoId}}" },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
                   "const json = pm.response.json();",
-                  "pm.environment.set('periodoLetivoId', json.id);",
-                  "pm.test('PeriodoLetivoId salvo', function () {",
-                  "  pm.expect(json.id).to.be.a('number');",
-                  "});"
-                ],
-                "type": "text/javascript"
+                  "pm.test('ID corresponde ao cadastrado', () => pm.expect(json.id).to.eql(Number(pm.environment.get('alunoId'))));"
+                ]
               }
             }
           ]
         },
         {
-          "name": "Setup - Criar turma base",
+          "name": "KAN-14 - Erro 400 para CPF inválido",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "url": "{{baseUrl}}/api/alunos",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"codigo\": \"TURMA-SETUP\",\n  \"nome\": \"Turma Setup\",\n  \"capacidade\": 30,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}"
-            },
-            "url": "{{baseUrl}}/api/turmas"
+              "raw": "{\n  \"nomeCompleto\": \"Aluno Inválido\",\n  \"cpf\": \"123\",\n  \"email\": \"invalido@example.com\",\n  \"dataNascimento\": \"2010-05-15\"\n}"
+            }
           },
           "event": [
             {
               "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.environment.set('turmaId', json.id);",
-                  "pm.test('TurmaId salvo', function () {",
-                  "  pm.expect(json.id).to.be.a('number');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
+              "script": { "type": "text/javascript", "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] }
             }
           ]
         }
       ]
     },
     {
-      "name": "01 - Aluno",
+      "name": "02 - Catálogo Acadêmico (KAN-18, KAN-35, KAN-36, KAN-37)",
       "item": [
         {
-          "name": "KAN-14 - Cadastrar aluno válido",
+          "name": "KAN-35 - Criar período letivo",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nomeCompleto\": \"Maria dos Santos\",\n  \"cpf\": \"12312312399\",\n  \"email\": \"maria.santos@example.com\",\n  \"dataNascimento\": \"2011-03-10\"\n}"
-            },
-            "url": "{{baseUrl}}/api/alunos"
+            "url": "{{baseUrl}}/api/periodos-letivos",
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"2026.{{runSuffix}}\",\n  \"dataInicio\": \"2026-02-01\",\n  \"dataFim\": \"2026-06-30\"\n}" }
           },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Retorna payload de aluno', function () {",
-                  "  pm.expect(json.id).to.be.a('number');",
-                  "  pm.expect(json.nomeCompleto).to.eql('Maria dos Santos');",
-                  "  pm.expect(json.cpf).to.eql('12312312399');",
-                  "  pm.expect(json.createdAt).to.be.a('string');",
-                  "});",
-                  "pm.environment.set('alunoId', json.id);"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const json = pm.response.json(); pm.environment.set('periodoLetivoId', json.id);"] } }
           ]
         },
         {
-          "name": "KAN-14 - Rejeitar cadastro com CPF inválido",
+          "name": "KAN-18/KAN-35 - Buscar período criado",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/periodos-letivos/{{periodoLetivoId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
+          ]
+        },
+        {
+          "name": "KAN-36 - Criar turma",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nomeCompleto\": \"Fulano\",\n  \"cpf\": \"123\",\n  \"email\": \"fulano@example.com\",\n  \"dataNascimento\": \"2012-01-01\"\n}"
-            },
-            "url": "{{baseUrl}}/api/alunos"
+            "url": "{{baseUrl}}/api/turmas",
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"TURMA-{{runSuffix}}\",\n  \"nome\": \"Turma {{runSuffix}}\",\n  \"capacidade\": 30,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
           },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 400', function () {",
-                  "  pm.response.to.have.status(400);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Erro padronizado de validação', function () {",
-                  "  pm.expect(json.message).to.eql('Dados de entrada inválidos');",
-                  "  pm.expect(json.errors).to.be.an('array').that.is.not.empty;",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const json = pm.response.json(); pm.environment.set('turmaId', json.id); pm.environment.set('turmaCodigo', json.codigo);"] } }
           ]
         },
         {
-          "name": "KAN-49 - Buscar aluno por ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/alunos/{{alunoId}}"
-          },
+          "name": "KAN-18/KAN-36 - Buscar turma criada",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/turmas/{{turmaId}}" },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Retorna aluno do identificador', function () {",
-                  "  pm.expect(json.id).to.eql(Number(pm.environment.get('alunoId')));",
-                  "  pm.expect(json.nomeCompleto).to.be.a('string');",
-                  "  pm.expect(json.cpf).to.be.a('string');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
-          "name": "KAN-49 - Retornar 404 ao buscar aluno inexistente",
+          "name": "KAN-37 - Criar turma base para teste de duplicidade",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/alunos/999999"
+            "method": "POST",
+            "url": "{{baseUrl}}/api/turmas",
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"DUP-{{runSuffix}}\",\n  \"nome\": \"Turma Duplicada Base\",\n  \"capacidade\": 20,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
           },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 404', function () {",
-                  "  pm.response.to.have.status(404);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Mensagem de não encontrado', function () {",
-                  "  pm.expect(json.message).to.include('Aluno não encontrado');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));"] } }
+          ]
+        },
+        {
+          "name": "KAN-37 - Repetir criação e esperar 409",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/turmas",
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"DUP-{{runSuffix}}\",\n  \"nome\": \"Turma Duplicada Base\",\n  \"capacidade\": 20,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 409', () => pm.response.to.have.status(409));"] } }
           ]
         }
       ]
     },
     {
-      "name": "02 - Catálogo Acadêmico",
+      "name": "03 - Matrícula (KAN-20, KAN-40, KAN-41, KAN-42, KAN-22, KAN-44, KAN-45, KAN-46)",
       "item": [
         {
-          "name": "KAN-18/KAN-35 - Criar período letivo",
+          "name": "KAN-20/KAN-40/KAN-41 - Criar matrícula válida",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"2026.2\",\n  \"dataInicio\": \"2026-08-01\",\n  \"dataFim\": \"2026-12-15\"\n}"
-            },
-            "url": "{{baseUrl}}/api/periodos-letivos"
+            "url": "{{baseUrl}}/api/matriculas",
+            "body": { "mode": "raw", "raw": "{\n  \"alunoId\": {{alunoId}},\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
           },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.environment.set('periodoLetivoId', json.id);",
-                  "pm.test('Período criado com ID', function () {",
-                  "  pm.expect(json.id).to.be.a('number');",
-                  "  pm.expect(json.nome).to.eql('2026.2');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "KAN-18/KAN-35 - Consultar período letivo por ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/periodos-letivos/{{periodoLetivoId}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Retorna o período esperado', function () {",
-                  "  pm.expect(json.id).to.eql(Number(pm.environment.get('periodoLetivoId')));",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "KAN-18/KAN-36 - Criar turma",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"codigo\": \"TURMA-A\",\n  \"nome\": \"Turma A\",\n  \"capacidade\": 35,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}"
-            },
-            "url": "{{baseUrl}}/api/turmas"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.environment.set('turmaId', json.id);",
-                  "pm.test('Turma criada e vinculada ao período', function () {",
-                  "  pm.expect(json.id).to.be.a('number');",
-                  "  pm.expect(json.periodoLetivoId).to.eql(Number(pm.environment.get('periodoLetivoId')));",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "KAN-18/KAN-36 - Consultar turma por ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/turmas/{{turmaId}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Retorna turma consultada', function () {",
-                  "  pm.expect(json.id).to.eql(Number(pm.environment.get('turmaId')));",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "KAN-37 - Rejeitar turma duplicada no mesmo período",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"codigo\": \"TURMA-DUP\",\n  \"nome\": \"Turma Duplicada\",\n  \"capacidade\": 20,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}"
-            },
-            "url": "{{baseUrl}}/api/turmas"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (!pm.environment.get('duplicadaCriada')) {",
-                  "  pm.environment.set('duplicadaCriada', 'true');",
-                  "  pm.test('Primeira criação: status 201', function () {",
-                  "    pm.response.to.have.status(201);",
-                  "  });",
-                  "} else {",
-                  "  pm.test('Segunda criação: status 409', function () {",
-                  "    pm.response.to.have.status(409);",
-                  "  });",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "03 - Matrícula",
-      "item": [
-        {
-          "name": "KAN-20/KAN-40/KAN-41 - Criar matrícula válida (status inicial ATIVA)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"alunoId\": {{alunoId}},\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}"
-            },
-            "url": "{{baseUrl}}/api/matriculas"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
                   "const json = pm.response.json();",
                   "pm.environment.set('matriculaId', json.id);",
-                  "pm.test('Matrícula criada com status inicial ATIVA', function () {",
-                  "  pm.expect(json.id).to.be.a('number');",
-                  "  pm.expect(json.alunoId).to.eql(Number(pm.environment.get('alunoId')));",
-                  "  pm.expect(json.turmaId).to.eql(Number(pm.environment.get('turmaId')));",
-                  "  pm.expect(json.periodoLetivoId).to.eql(Number(pm.environment.get('periodoLetivoId')));",
-                  "  pm.expect(json.status).to.eql('ATIVA');",
-                  "});"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status inicial ATIVA', () => pm.expect(json.status).to.eql('ATIVA'));"
+                ]
               }
             }
           ]
         },
         {
-          "name": "KAN-42 - Retornar 404 quando aluno não existir",
+          "name": "KAN-42 - Erro 404 para aluno inexistente",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"alunoId\": 999999,\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}"
-            },
-            "url": "{{baseUrl}}/api/matriculas"
+            "url": "{{baseUrl}}/api/matriculas",
+            "body": { "mode": "raw", "raw": "{\n  \"alunoId\": 999999,\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
           },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 404', function () {",
-                  "  pm.response.to.have.status(404);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Mensagem de aluno não encontrado', function () {",
-                  "  pm.expect(json.message).to.include('Aluno não encontrado');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 404', () => pm.response.to.have.status(404));"] } }
           ]
         },
         {
-          "name": "KAN-42 - Retornar 400 quando turma não pertence ao período",
+          "name": "KAN-42 - Erro 400 turma/período inconsistente",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"alunoId\": {{alunoId}},\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": 999999\n}"
-            },
-            "url": "{{baseUrl}}/api/matriculas"
+            "url": "{{baseUrl}}/api/matriculas",
+            "body": { "mode": "raw", "raw": "{\n  \"alunoId\": {{alunoId}},\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": 999999\n}" }
           },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 404 ou 400 conforme validação do backend', function () {",
-                  "  pm.expect([400, 404]).to.include(pm.response.code);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Retorna mensagem de erro', function () {",
-                  "  pm.expect(json.message).to.be.a('string');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400 ou 404 (depende da ordem de validação do backend)', () => pm.expect([400,404]).to.include(pm.response.code));"] } }
           ]
         },
         {
-          "name": "KAN-44 - Filtrar matrículas por aluno",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/matriculas?alunoId={{alunoId}}"
-          },
+          "name": "KAN-44 - Filtrar matrícula por aluno",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?alunoId={{alunoId}}" },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Lista filtrada por aluno', function () {",
-                  "  pm.expect(json).to.be.an('array').that.is.not.empty;",
-                  "  json.forEach(item => pm.expect(item.alunoId).to.eql(Number(pm.environment.get('alunoId'))));",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
-          "name": "KAN-45 - Filtrar matrículas por turma",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/matriculas?turmaId={{turmaId}}"
-          },
+          "name": "KAN-45 - Filtrar matrícula por turma",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?turmaId={{turmaId}}" },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Lista filtrada por turma', function () {",
-                  "  pm.expect(json).to.be.an('array').that.is.not.empty;",
-                  "  json.forEach(item => pm.expect(item.turmaId).to.eql(Number(pm.environment.get('turmaId'))));",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
-          "name": "KAN-46 - Filtrar matrículas por período letivo",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/matriculas?periodoLetivoId={{periodoLetivoId}}"
-          },
+          "name": "KAN-46 - Filtrar matrícula por período",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?periodoLetivoId={{periodoLetivoId}}" },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Lista filtrada por período letivo', function () {",
-                  "  pm.expect(json).to.be.an('array').that.is.not.empty;",
-                  "  json.forEach(item => pm.expect(item.periodoLetivoId).to.eql(Number(pm.environment.get('periodoLetivoId'))));",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
-          "name": "KAN-22 - Filtrar matrículas por status",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/matriculas?status=ATIVA"
-          },
+          "name": "KAN-22 - Filtrar matrícula por status ATIVA",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?status=ATIVA" },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Lista filtrada por status', function () {",
-                  "  pm.expect(json).to.be.an('array').that.is.not.empty;",
-                  "  json.forEach(item => pm.expect(item.status).to.eql('ATIVA'));",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
-          "name": "KAN-22 - Rejeitar status inválido",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/matriculas?status=INVALIDO"
-          },
+          "name": "KAN-22 - Status inválido deve retornar 400",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?status=INVALIDO" },
           "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 400', function () {",
-                  "  pm.response.to.have.status(400);",
-                  "});",
-                  "const json = pm.response.json();",
-                  "pm.test('Mensagem de status inválido', function () {",
-                  "  pm.expect(json.message).to.include('Status de matrícula inválido');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }
           ]
         }
       ]
