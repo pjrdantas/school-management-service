@@ -86,14 +86,14 @@ Responsavel por:
 
 No projeto novo, a base recomendada e:
 
-- `br.com.escola.schoolmanagement`
+- `br.com.escola`
 
 ### Estrutura interna sugerida por modulo
 
 Cada modulo deve seguir, quando aplicavel, esta organizacao:
 
 ```text
-br.com.escola.schoolmanagement
+br.com.escola
   <modulo>
     domain
     application
@@ -104,7 +104,7 @@ br.com.escola.schoolmanagement
 Exemplo conceitual:
 
 ```text
-br.com.escola.schoolmanagement
+br.com.escola
   enrollment
     domain
     application
