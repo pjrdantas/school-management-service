@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.PrePersist;
 
 @Entity
 @Table(name = "turma")
@@ -33,7 +34,7 @@ public class TurmaEntity {
     @JoinColumn(name = "periodo_letivo_id", nullable = false)
     private PeriodoLetivoEntity periodoLetivo;
 
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     public Long getId() {
@@ -70,6 +71,14 @@ public class TurmaEntity {
 
     public void setPeriodoLetivo(PeriodoLetivoEntity periodoLetivo) {
         this.periodoLetivo = periodoLetivo;
+    }
+
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
     public LocalDateTime getCreatedAt() {
