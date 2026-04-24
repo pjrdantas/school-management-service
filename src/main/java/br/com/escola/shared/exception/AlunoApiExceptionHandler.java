@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.escola.studentmanagement.adapter.in.web.AlunoController;
 import br.com.escola.studentmanagement.domain.exception.AlunoJaCadastradoException;
+import br.com.escola.studentmanagement.domain.exception.AlunoNaoEncontradoException;
 
 @RestControllerAdvice(basePackageClasses = AlunoController.class)
 public class AlunoApiExceptionHandler {
@@ -30,5 +31,10 @@ public class AlunoApiExceptionHandler {
     @ExceptionHandler(AlunoJaCadastradoException.class)
     public ResponseEntity<Map<String, String>> handleConflict(AlunoJaCadastradoException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AlunoNaoEncontradoException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(AlunoNaoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
     }
 }
