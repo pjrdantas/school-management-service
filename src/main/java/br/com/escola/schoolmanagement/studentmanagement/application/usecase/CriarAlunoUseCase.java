@@ -35,6 +35,7 @@ public class CriarAlunoUseCase {
                 persisted.getCpf(),
                 persisted.getEmail(),
                 persisted.getDataNascimento(),
-                persisted.getCreatedAt());
+                persisted.getCreatedAt()
+        );
     }
 }
