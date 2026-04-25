@@ -1,7 +1,7 @@
 package br.com.escola.shared.exception;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,30 +11,34 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import br.com.escola.studentmanagement.adapter.in.web.AlunoController;
 import br.com.escola.studentmanagement.domain.exception.AlunoJaCadastradoException;
 import br.com.escola.studentmanagement.domain.exception.AlunoNaoEncontradoException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice(basePackageClasses = AlunoController.class)
-public class AlunoApiExceptionHandler {
+public class AlunoApiExceptionHandler extends BaseApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Dados de entrada inválidos");
+    public ResponseEntity<ApiErrorResponse> handleValidation(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+        List<ApiFieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ApiFieldError(error.getField(), error.getDefaultMessage()))
+                .toList();
 
-        Map<String, String> fieldErrors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> fieldErrors.put(error.getField(), error.getDefaultMessage()));
-        response.put("errors", fieldErrors);
-
-        return ResponseEntity.badRequest().body(response);
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                "VALIDATION_ERROR",
+                "Dados de entrada inválidos",
+                request,
+                fieldErrors);
     }
 
     @ExceptionHandler(AlunoJaCadastradoException.class)
-    public ResponseEntity<Map<String, String>> handleConflict(AlunoJaCadastradoException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleConflict(AlunoJaCadastradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.CONFLICT, "BUSINESS_CONFLICT", ex.getMessage(), request);
     }
 
     @ExceptionHandler(AlunoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, String>> handleNotFound(AlunoNaoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleNotFound(AlunoNaoEncontradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 }
