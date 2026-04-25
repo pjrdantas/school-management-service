@@ -1,18 +1,14 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/school_management
-    username: postgres
-    password: root123
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/school_management}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root123}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     open-in-view: false
 
   flyway:
-    enabled: true
-
-  security:
-    user:
-      name: admin
-      password: admin123
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
