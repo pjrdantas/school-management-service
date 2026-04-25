@@ -13,6 +13,8 @@
         "exec": [
           "const user = pm.collectionVariables.get('auth_user');",
           "const pass = pm.collectionVariables.get('auth_password');",
+          "const user = pm.environment.get('auth_user');",
+          "const pass = pm.environment.get('auth_password');",
           "if (user && pass) {",
           "  const token = btoa(`${user}:${pass}`);",
           "  pm.request.headers.upsert({ key: 'Authorization', value: `Basic ${token}` });",
@@ -32,6 +34,7 @@
             "method": "GET",
             "url": "{{baseUrl}}/api/test/authenticated"
           },
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/test/authenticated" },
           "event": [
             {
               "listen": "test",
@@ -73,6 +76,9 @@
                   "pm.collectionVariables.set('runSuffix', suffix);",
                   "const baseCpf = suffix.slice(-9);",
                   "pm.collectionVariables.set('cpfValido', `123${baseCpf.slice(0,8)}`.slice(0,11));"
+                  "pm.environment.set('runSuffix', suffix);",
+                  "const baseCpf = suffix.slice(-9);",
+                  "pm.environment.set('cpfValido', `123${baseCpf.slice(0,8)}`.slice(0,11));"
                 ]
               }
             },
@@ -85,6 +91,8 @@
                   "const json = pm.response.json();",
                   "pm.collectionVariables.set('alunoId', json.id);",
                   "pm.collectionVariables.set('alunoCpf', json.cpf);",
+                  "pm.environment.set('alunoId', json.id);",
+                  "pm.environment.set('alunoCpf', json.cpf);",
                   "pm.test('Salvou alunoId', () => pm.expect(json.id).to.be.a('number'));"
                 ]
               }
@@ -97,6 +105,7 @@
             "method": "GET",
             "url": "{{baseUrl}}/api/alunos/{{alunoId}}"
           },
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/alunos/{{alunoId}}" },
           "event": [
             {
               "listen": "test",
@@ -106,6 +115,7 @@
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
                   "const json = pm.response.json();",
                   "pm.test('ID corresponde ao cadastrado', () => pm.expect(json.id).to.eql(Number(pm.collectionVariables.get('alunoId'))));"
+                  "pm.test('ID corresponde ao cadastrado', () => pm.expect(json.id).to.eql(Number(pm.environment.get('alunoId'))));"
                 ]
               }
             }
@@ -130,6 +140,7 @@
                   "pm.test('Status 400', () => pm.response.to.have.status(400));"
                 ]
               }
+              "script": { "type": "text/javascript", "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] }
             }
           ]
         }
@@ -159,6 +170,10 @@
                 ]
               }
             }
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"2026.{{runSuffix}}\",\n  \"dataInicio\": \"2026-02-01\",\n  \"dataFim\": \"2026-06-30\"\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const json = pm.response.json(); pm.environment.set('periodoLetivoId', json.id);"] } }
           ]
         },
         {
@@ -177,6 +192,9 @@
                 ]
               }
             }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/periodos-letivos/{{periodoLetivoId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
@@ -200,6 +218,10 @@
                 ]
               }
             }
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"TURMA-{{runSuffix}}\",\n  \"nome\": \"Turma {{runSuffix}}\",\n  \"capacidade\": 30,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "const json = pm.response.json(); pm.environment.set('turmaId', json.id); pm.environment.set('turmaCodigo', json.codigo);"] } }
           ]
         },
         {
@@ -218,6 +240,9 @@
                 ]
               }
             }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/turmas/{{turmaId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
@@ -240,6 +265,10 @@
                 ]
               }
             }
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"DUP-{{runSuffix}}\",\n  \"nome\": \"Turma Duplicada Base\",\n  \"capacidade\": 20,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));"] } }
           ]
         },
         {
@@ -262,6 +291,10 @@
                 ]
               }
             }
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"DUP-{{runSuffix}}\",\n  \"nome\": \"Turma Duplicada Base\",\n  \"capacidade\": 20,\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 409', () => pm.response.to.have.status(409));"] } }
           ]
         }
       ]
@@ -278,6 +311,7 @@
               "mode": "raw",
               "raw": "{\n  \"alunoId\": {{alunoId}},\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}"
             }
+            "body": { "mode": "raw", "raw": "{\n  \"alunoId\": {{alunoId}},\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
           },
           "event": [
             {
@@ -288,6 +322,7 @@
                   "pm.test('Status 201', () => pm.response.to.have.status(201));",
                   "const json = pm.response.json();",
                   "pm.collectionVariables.set('matriculaId', json.id);",
+                  "pm.environment.set('matriculaId', json.id);",
                   "pm.test('Status inicial ATIVA', () => pm.expect(json.status).to.eql('ATIVA'));"
                 ]
               }
@@ -314,6 +349,10 @@
                 ]
               }
             }
+            "body": { "mode": "raw", "raw": "{\n  \"alunoId\": 999999,\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": {{periodoLetivoId}}\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 404', () => pm.response.to.have.status(404));"] } }
           ]
         },
         {
@@ -336,6 +375,10 @@
                 ]
               }
             }
+            "body": { "mode": "raw", "raw": "{\n  \"alunoId\": {{alunoId}},\n  \"turmaId\": {{turmaId}},\n  \"periodoLetivoId\": 999999\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400 ou 404 (depende da ordem de validação do backend)', () => pm.expect([400,404]).to.include(pm.response.code));"] } }
           ]
         },
         {
@@ -354,6 +397,9 @@
                 ]
               }
             }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?alunoId={{alunoId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
@@ -372,6 +418,9 @@
                 ]
               }
             }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?turmaId={{turmaId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
@@ -390,6 +439,9 @@
                 ]
               }
             }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?periodoLetivoId={{periodoLetivoId}}" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
@@ -408,6 +460,9 @@
                 ]
               }
             }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?status=ATIVA" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }
           ]
         },
         {
@@ -426,6 +481,9 @@
                 ]
               }
             }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/matriculas?status=INVALIDO" },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Status 400', () => pm.response.to.have.status(400));"] } }
           ]
         }
       ]
@@ -476,5 +534,10 @@
       "key": "turmaCodigo",
       "value": ""
     }
+  ]
+}
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "auth_user", "value": "admin" },
+    { "key": "auth_password", "value": "admin" }
   ]
 }
