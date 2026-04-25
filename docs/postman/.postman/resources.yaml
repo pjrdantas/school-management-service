@@ -1,9 +1,0 @@
-# Use this workspace to collaborate
-workspace:
-  id: ""
-
-localResources:
-  collections:
-    - ..\school-management-sprint1-subtasks.postman_collection.json
-  environments:
-    - ..\school-management-local.postman_environment.json
