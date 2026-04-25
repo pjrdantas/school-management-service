@@ -1,42 +1,25 @@
 package br.com.escola.academiccatalog.application.usecase;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 
-import br.com.escola.academiccatalog.adapter.in.web.PeriodoLetivoRequest;
-import br.com.escola.academiccatalog.adapter.in.web.PeriodoLetivoResponse;
-import br.com.escola.academiccatalog.adapter.out.persistence.entity.PeriodoLetivoEntity;
-import br.com.escola.academiccatalog.adapter.out.persistence.repository.PeriodoLetivoJpaRepository;
+import br.com.escola.academiccatalog.application.dto.PeriodoLetivoInput;
+import br.com.escola.academiccatalog.application.dto.PeriodoLetivoOutput;
+import br.com.escola.academiccatalog.application.port.out.PeriodoLetivoGateway;
 import br.com.escola.academiccatalog.domain.exception.PeriodoLetivoInvalidoException;
 
 @Service
 public class CriarPeriodoLetivoUseCase {
 
-    private final PeriodoLetivoJpaRepository periodoLetivoJpaRepository;
+    private final PeriodoLetivoGateway periodoLetivoGateway;
 
-    public CriarPeriodoLetivoUseCase(PeriodoLetivoJpaRepository periodoLetivoJpaRepository) {
-        this.periodoLetivoJpaRepository = periodoLetivoJpaRepository;
+    public CriarPeriodoLetivoUseCase(PeriodoLetivoGateway periodoLetivoGateway) {
+        this.periodoLetivoGateway = periodoLetivoGateway;
     }
 
-    public PeriodoLetivoResponse executar(PeriodoLetivoRequest request) {
-        if (request.dataFim().isBefore(request.dataInicio())) {
+    public PeriodoLetivoOutput executar(PeriodoLetivoInput input) {
+        if (input.dataFim().isBefore(input.dataInicio())) {
             throw new PeriodoLetivoInvalidoException();
         }
-
-        PeriodoLetivoEntity periodoLetivoEntity = new PeriodoLetivoEntity();
-        periodoLetivoEntity.setNome(request.nome());
-        periodoLetivoEntity.setDataInicio(request.dataInicio());
-        periodoLetivoEntity.setDataFim(request.dataFim());
-        periodoLetivoEntity.setCreatedAt(LocalDateTime.now());
-
-        PeriodoLetivoEntity persisted = periodoLetivoJpaRepository.save(periodoLetivoEntity);
-
-        return new PeriodoLetivoResponse(
-                persisted.getId(),
-                persisted.getNome(),
-                persisted.getDataInicio(),
-                persisted.getDataFim(),
-                persisted.getCreatedAt());
+        return periodoLetivoGateway.save(input);
     }
 }

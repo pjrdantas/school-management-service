@@ -2,30 +2,20 @@ package br.com.escola.studentmanagement.application.usecase;
 
 import org.springframework.stereotype.Service;
 
-import br.com.escola.studentmanagement.adapter.in.web.AlunoResponse;
-import br.com.escola.studentmanagement.adapter.out.persistence.entity.AlunoEntity;
-import br.com.escola.studentmanagement.adapter.out.persistence.repository.AlunoJpaRepository;
+import br.com.escola.studentmanagement.application.dto.AlunoOutput;
+import br.com.escola.studentmanagement.application.port.out.AlunoQueryGateway;
 import br.com.escola.studentmanagement.domain.exception.AlunoNaoEncontradoException;
 
 @Service
 public class BuscarAlunoPorIdUseCase {
 
-    private final AlunoJpaRepository alunoJpaRepository;
+    private final AlunoQueryGateway alunoQueryGateway;
 
-    public BuscarAlunoPorIdUseCase(AlunoJpaRepository alunoJpaRepository) {
-        this.alunoJpaRepository = alunoJpaRepository;
+    public BuscarAlunoPorIdUseCase(AlunoQueryGateway alunoQueryGateway) {
+        this.alunoQueryGateway = alunoQueryGateway;
     }
 
-    public AlunoResponse executar(Long id) {
-        AlunoEntity alunoEntity = alunoJpaRepository.findById(id)
-                .orElseThrow(() -> new AlunoNaoEncontradoException(id));
-
-        return new AlunoResponse(
-                alunoEntity.getId(),
-                alunoEntity.getNomeCompleto(),
-                alunoEntity.getCpf(),
-                alunoEntity.getEmail(),
-                alunoEntity.getDataNascimento(),
-                alunoEntity.getCreatedAt());
+    public AlunoOutput executar(Long id) {
+        return alunoQueryGateway.findById(id).orElseThrow(() -> new AlunoNaoEncontradoException(id));
     }
 }

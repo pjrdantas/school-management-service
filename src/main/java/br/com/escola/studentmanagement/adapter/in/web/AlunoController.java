@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.escola.studentmanagement.application.dto.AlunoInput;
+import br.com.escola.studentmanagement.application.dto.AlunoOutput;
 import br.com.escola.studentmanagement.application.usecase.BuscarAlunoPorIdUseCase;
 import br.com.escola.studentmanagement.application.usecase.CriarAlunoUseCase;
 
@@ -28,11 +30,23 @@ public class AlunoController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AlunoResponse criar(@Valid @RequestBody AlunoRequest request) {
-        return criarAlunoUseCase.executar(request);
+        AlunoOutput output = criarAlunoUseCase.executar(
+                new AlunoInput(request.nomeCompleto(), request.cpf(), request.email(), request.dataNascimento()));
+        return toResponse(output);
     }
 
     @GetMapping("/{id}")
     public AlunoResponse buscarPorId(@PathVariable Long id) {
-        return buscarAlunoPorIdUseCase.executar(id);
+        return toResponse(buscarAlunoPorIdUseCase.executar(id));
+    }
+
+    private AlunoResponse toResponse(AlunoOutput output) {
+        return new AlunoResponse(
+                output.id(),
+                output.nomeCompleto(),
+                output.cpf(),
+                output.email(),
+                output.dataNascimento(),
+                output.createdAt());
     }
 }

@@ -1,45 +1,25 @@
 package br.com.escola.studentmanagement.application.usecase;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 
-import br.com.escola.studentmanagement.adapter.in.web.AlunoRequest;
-import br.com.escola.studentmanagement.adapter.in.web.AlunoResponse;
-import br.com.escola.studentmanagement.adapter.out.persistence.entity.AlunoEntity;
-import br.com.escola.studentmanagement.adapter.out.persistence.repository.AlunoJpaRepository;
+import br.com.escola.studentmanagement.application.dto.AlunoInput;
+import br.com.escola.studentmanagement.application.dto.AlunoOutput;
+import br.com.escola.studentmanagement.application.port.out.AlunoCommandGateway;
 import br.com.escola.studentmanagement.domain.exception.AlunoJaCadastradoException;
 
 @Service
 public class CriarAlunoUseCase {
 
-    private final AlunoJpaRepository alunoJpaRepository;
+    private final AlunoCommandGateway alunoCommandGateway;
 
-    public CriarAlunoUseCase(AlunoJpaRepository alunoJpaRepository) {
-        this.alunoJpaRepository = alunoJpaRepository;
+    public CriarAlunoUseCase(AlunoCommandGateway alunoCommandGateway) {
+        this.alunoCommandGateway = alunoCommandGateway;
     }
 
-    public AlunoResponse executar(AlunoRequest request) {
-        if (alunoJpaRepository.findByCpf(request.cpf()).isPresent()) {
+    public AlunoOutput executar(AlunoInput input) {
+        if (alunoCommandGateway.existsByCpf(input.cpf())) {
             throw new AlunoJaCadastradoException();
         }
-
-        AlunoEntity alunoEntity = new AlunoEntity();
-        alunoEntity.setNomeCompleto(request.nomeCompleto());
-        alunoEntity.setCpf(request.cpf());
-        alunoEntity.setEmail(request.email());
-        alunoEntity.setDataNascimento(request.dataNascimento());
-        alunoEntity.setCreatedAt(LocalDateTime.now());
-
-        AlunoEntity persisted = alunoJpaRepository.save(alunoEntity);
-
-        return new AlunoResponse(
-                persisted.getId(),
-                persisted.getNomeCompleto(),
-                persisted.getCpf(),
-                persisted.getEmail(),
-                persisted.getDataNascimento(),
-                persisted.getCreatedAt());
-
+        return alunoCommandGateway.save(input);
     }
 }

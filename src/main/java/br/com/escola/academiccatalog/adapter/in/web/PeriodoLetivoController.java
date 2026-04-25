@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.escola.academiccatalog.application.dto.PeriodoLetivoInput;
+import br.com.escola.academiccatalog.application.dto.PeriodoLetivoOutput;
 import br.com.escola.academiccatalog.application.usecase.BuscarPeriodoLetivoPorIdUseCase;
 import br.com.escola.academiccatalog.application.usecase.CriarPeriodoLetivoUseCase;
 import jakarta.validation.Valid;
@@ -30,11 +32,22 @@ public class PeriodoLetivoController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PeriodoLetivoResponse criar(@Valid @RequestBody PeriodoLetivoRequest request) {
-        return criarPeriodoLetivoUseCase.executar(request);
+        PeriodoLetivoOutput output = criarPeriodoLetivoUseCase.executar(
+                new PeriodoLetivoInput(request.nome(), request.dataInicio(), request.dataFim()));
+        return toResponse(output);
     }
 
     @GetMapping("/{id}")
     public PeriodoLetivoResponse buscarPorId(@PathVariable Long id) {
-        return buscarPeriodoLetivoPorIdUseCase.executar(id);
+        return toResponse(buscarPeriodoLetivoPorIdUseCase.executar(id));
+    }
+
+    private PeriodoLetivoResponse toResponse(PeriodoLetivoOutput output) {
+        return new PeriodoLetivoResponse(
+                output.id(),
+                output.nome(),
+                output.dataInicio(),
+                output.dataFim(),
+                output.createdAt());
     }
 }

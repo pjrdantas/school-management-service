@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.escola.academiccatalog.application.dto.TurmaInput;
+import br.com.escola.academiccatalog.application.dto.TurmaOutput;
 import br.com.escola.academiccatalog.application.usecase.BuscarTurmaPorIdUseCase;
 import br.com.escola.academiccatalog.application.usecase.CriarTurmaUseCase;
 import jakarta.validation.Valid;
@@ -28,11 +30,23 @@ public class TurmaController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TurmaResponse criar(@Valid @RequestBody TurmaRequest request) {
-        return criarTurmaUseCase.executar(request);
+        TurmaOutput output = criarTurmaUseCase.executar(
+                new TurmaInput(request.codigo(), request.nome(), request.capacidade(), request.periodoLetivoId()));
+        return toResponse(output);
     }
 
     @GetMapping("/{id}")
     public TurmaResponse buscarPorId(@PathVariable Long id) {
-        return buscarTurmaPorIdUseCase.executar(id);
+        return toResponse(buscarTurmaPorIdUseCase.executar(id));
+    }
+
+    private TurmaResponse toResponse(TurmaOutput output) {
+        return new TurmaResponse(
+                output.id(),
+                output.codigo(),
+                output.nome(),
+                output.capacidade(),
+                output.periodoLetivoId(),
+                output.createdAt());
     }
 }

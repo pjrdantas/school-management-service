@@ -2,29 +2,20 @@ package br.com.escola.academiccatalog.application.usecase;
 
 import org.springframework.stereotype.Service;
 
-import br.com.escola.academiccatalog.adapter.in.web.PeriodoLetivoResponse;
-import br.com.escola.academiccatalog.adapter.out.persistence.entity.PeriodoLetivoEntity;
-import br.com.escola.academiccatalog.adapter.out.persistence.repository.PeriodoLetivoJpaRepository;
+import br.com.escola.academiccatalog.application.dto.PeriodoLetivoOutput;
+import br.com.escola.academiccatalog.application.port.out.PeriodoLetivoGateway;
 import br.com.escola.academiccatalog.domain.exception.PeriodoLetivoNaoEncontradoException;
 
 @Service
 public class BuscarPeriodoLetivoPorIdUseCase {
 
-    private final PeriodoLetivoJpaRepository periodoLetivoJpaRepository;
+    private final PeriodoLetivoGateway periodoLetivoGateway;
 
-    public BuscarPeriodoLetivoPorIdUseCase(PeriodoLetivoJpaRepository periodoLetivoJpaRepository) {
-        this.periodoLetivoJpaRepository = periodoLetivoJpaRepository;
+    public BuscarPeriodoLetivoPorIdUseCase(PeriodoLetivoGateway periodoLetivoGateway) {
+        this.periodoLetivoGateway = periodoLetivoGateway;
     }
 
-    public PeriodoLetivoResponse executar(Long id) {
-        PeriodoLetivoEntity entity = periodoLetivoJpaRepository.findById(id)
-                .orElseThrow(() -> new PeriodoLetivoNaoEncontradoException(id));
-
-        return new PeriodoLetivoResponse(
-                entity.getId(),
-                entity.getNome(),
-                entity.getDataInicio(),
-                entity.getDataFim(),
-                entity.getCreatedAt());
+    public PeriodoLetivoOutput executar(Long id) {
+        return periodoLetivoGateway.findById(id).orElseThrow(() -> new PeriodoLetivoNaoEncontradoException(id));
     }
 }
