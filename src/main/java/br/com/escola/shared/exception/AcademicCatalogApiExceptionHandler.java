@@ -1,7 +1,5 @@
 package br.com.escola.shared.exception;
 
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,27 +10,28 @@ import br.com.escola.academiccatalog.domain.exception.PeriodoLetivoInvalidoExcep
 import br.com.escola.academiccatalog.domain.exception.PeriodoLetivoNaoEncontradoException;
 import br.com.escola.academiccatalog.domain.exception.TurmaJaCadastradaException;
 import br.com.escola.academiccatalog.domain.exception.TurmaNaoEncontradaException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice(basePackageClasses = PeriodoLetivoController.class)
-public class AcademicCatalogApiExceptionHandler {
+public class AcademicCatalogApiExceptionHandler extends BaseApiExceptionHandler {
 
     @ExceptionHandler(PeriodoLetivoInvalidoException.class)
-    public ResponseEntity<Map<String, String>> handlePeriodoInvalido(PeriodoLetivoInvalidoException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handlePeriodoInvalido(PeriodoLetivoInvalidoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, "BUSINESS_RULE_VIOLATION", ex.getMessage(), request);
     }
 
     @ExceptionHandler(PeriodoLetivoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, String>> handlePeriodoNotFound(PeriodoLetivoNaoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handlePeriodoNotFound(PeriodoLetivoNaoEncontradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 
     @ExceptionHandler(TurmaNaoEncontradaException.class)
-    public ResponseEntity<Map<String, String>> handleTurmaNotFound(TurmaNaoEncontradaException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleTurmaNotFound(TurmaNaoEncontradaException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 
     @ExceptionHandler(TurmaJaCadastradaException.class)
-    public ResponseEntity<Map<String, String>> handleTurmaDuplicada(TurmaJaCadastradaException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleTurmaDuplicada(TurmaJaCadastradaException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.CONFLICT, "BUSINESS_CONFLICT", ex.getMessage(), request);
     }
 }
