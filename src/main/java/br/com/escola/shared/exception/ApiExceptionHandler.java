@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import br.com.escola.enrollment.domain.exception.MatriculaAlunoNaoEncontradoException;
+import br.com.escola.enrollment.domain.exception.MatriculaPeriodoNaoEncontradoException;
+import br.com.escola.enrollment.domain.exception.MatriculaStatusInvalidoException;
+import br.com.escola.enrollment.domain.exception.MatriculaTurmaNaoEncontradaException;
+import br.com.escola.enrollment.domain.exception.TurmaPeriodoInconsistenteException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
@@ -47,6 +52,41 @@ public class ApiExceptionHandler extends BaseApiExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiErrorResponse> handleBusiness(IllegalArgumentException ex, HttpServletRequest request) {
         return buildError(HttpStatus.CONFLICT, "BUSINESS_CONFLICT", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MatriculaAlunoNaoEncontradoException.class)
+    public ResponseEntity<ApiErrorResponse> handleMatriculaAlunoNotFound(
+            MatriculaAlunoNaoEncontradoException ex,
+            HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MatriculaTurmaNaoEncontradaException.class)
+    public ResponseEntity<ApiErrorResponse> handleMatriculaTurmaNotFound(
+            MatriculaTurmaNaoEncontradaException ex,
+            HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MatriculaPeriodoNaoEncontradoException.class)
+    public ResponseEntity<ApiErrorResponse> handleMatriculaPeriodoNotFound(
+            MatriculaPeriodoNaoEncontradoException ex,
+            HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MatriculaStatusInvalidoException.class)
+    public ResponseEntity<ApiErrorResponse> handleMatriculaStatusInvalido(
+            MatriculaStatusInvalidoException ex,
+            HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(TurmaPeriodoInconsistenteException.class)
+    public ResponseEntity<ApiErrorResponse> handleTurmaPeriodoInconsistente(
+            TurmaPeriodoInconsistenteException ex,
+            HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, "BUSINESS_RULE_VIOLATION", ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
