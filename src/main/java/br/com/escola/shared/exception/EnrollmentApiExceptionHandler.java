@@ -1,7 +1,5 @@
 package br.com.escola.shared.exception;
 
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,32 +11,33 @@ import br.com.escola.enrollment.domain.exception.MatriculaPeriodoNaoEncontradoEx
 import br.com.escola.enrollment.domain.exception.MatriculaStatusInvalidoException;
 import br.com.escola.enrollment.domain.exception.MatriculaTurmaNaoEncontradaException;
 import br.com.escola.enrollment.domain.exception.TurmaPeriodoInconsistenteException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice(basePackageClasses = MatriculaController.class)
-public class EnrollmentApiExceptionHandler {
+public class EnrollmentApiExceptionHandler extends BaseApiExceptionHandler {
 
     @ExceptionHandler(MatriculaAlunoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, String>> handleAlunoNotFound(MatriculaAlunoNaoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleAlunoNotFound(MatriculaAlunoNaoEncontradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 
     @ExceptionHandler(MatriculaTurmaNaoEncontradaException.class)
-    public ResponseEntity<Map<String, String>> handleTurmaNotFound(MatriculaTurmaNaoEncontradaException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleTurmaNotFound(MatriculaTurmaNaoEncontradaException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 
     @ExceptionHandler(MatriculaPeriodoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, String>> handlePeriodoNotFound(MatriculaPeriodoNaoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handlePeriodoNotFound(MatriculaPeriodoNaoEncontradoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 
     @ExceptionHandler(MatriculaStatusInvalidoException.class)
-    public ResponseEntity<Map<String, String>> handleStatusInvalido(MatriculaStatusInvalidoException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleStatusInvalido(MatriculaStatusInvalidoException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage(), request);
     }
 
     @ExceptionHandler(TurmaPeriodoInconsistenteException.class)
-    public ResponseEntity<Map<String, String>> handleInconsistencia(TurmaPeriodoInconsistenteException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<ApiErrorResponse> handleInconsistencia(TurmaPeriodoInconsistenteException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, "BUSINESS_RULE_VIOLATION", ex.getMessage(), request);
     }
 }
