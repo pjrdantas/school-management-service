@@ -1,5 +1,6 @@
 package br.com.escola.studentmanagement.application.usecase;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import br.com.escola.studentmanagement.application.dto.AlunoOutput;
@@ -15,7 +16,7 @@ public class BuscarAlunoPorIdUseCase {
         this.alunoQueryGateway = alunoQueryGateway;
     }
 
-    public AlunoOutput executar(Long id) {
+    public AlunoOutput executar(@NonNull Long id) {
         return alunoQueryGateway.findById(id).orElseThrow(() -> new AlunoNaoEncontradoException(id));
     }
 }

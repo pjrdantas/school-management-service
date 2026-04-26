@@ -3,6 +3,7 @@ package br.com.escola.academiccatalog.adapter.out.persistence;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import br.com.escola.academiccatalog.adapter.out.persistence.entity.PeriodoLetivoEntity;
@@ -21,12 +22,12 @@ public class PeriodoLetivoPersistenceGateway implements PeriodoLetivoGateway {
     }
 
     @Override
-    public Optional<PeriodoLetivoOutput> findById(Long id) {
+    public Optional<PeriodoLetivoOutput> findById(@NonNull Long id) {
         return periodoLetivoJpaRepository.findById(id).map(this::toOutput);
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsById(@NonNull Long id) {
         return periodoLetivoJpaRepository.existsById(id);
     }
 

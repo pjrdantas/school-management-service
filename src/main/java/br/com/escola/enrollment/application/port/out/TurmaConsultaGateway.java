@@ -2,9 +2,11 @@ package br.com.escola.enrollment.application.port.out;
 
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
+
 public interface TurmaConsultaGateway {
 
-    boolean existsById(Long id);
+    boolean existsById(@NonNull Long id);
 
-    Optional<Long> findPeriodoLetivoIdByTurmaId(Long turmaId);
+    Optional<Long> findPeriodoLetivoIdByTurmaId(@NonNull Long turmaId);
 }

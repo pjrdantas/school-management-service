@@ -34,7 +34,8 @@ class MatriculaControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
+    @SuppressWarnings("null")
+	@Test
     @WithMockUser
     void deveCriarMatriculaComStatusInicialAtiva() throws Exception {
         Long alunoId = criarAluno();
@@ -59,7 +60,8 @@ class MatriculaControllerIntegrationTest {
                 .andExpect(jsonPath("$.status").value("ATIVA"));
     }
 
-    @Test
+    @SuppressWarnings("null")
+	@Test
     @WithMockUser
     void deveRetornarNotFoundQuandoAlunoNaoExistir() throws Exception {
         Long periodoId = criarPeriodo("2026.4", "2026-08-01", "2026-12-20");
@@ -80,7 +82,8 @@ class MatriculaControllerIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Aluno não encontrado para o id 99999"));
     }
 
-    @Test
+    @SuppressWarnings("null")
+	@Test
     @WithMockUser
     void deveRetornarBadRequestQuandoTurmaNaoPertencerAoPeriodoInformado() throws Exception {
         Long alunoId = criarAluno();
@@ -192,7 +195,8 @@ class MatriculaControllerIntegrationTest {
                 }
                 """.formatted(cpfAleatorio());
 
-        String responseBody = mockMvc.perform(post("/api/alunos")
+        @SuppressWarnings("null")
+		String responseBody = mockMvc.perform(post("/api/alunos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -212,7 +216,8 @@ class MatriculaControllerIntegrationTest {
                 }
                 """.formatted(nome, dataInicio, dataFim);
 
-        String responseBody = mockMvc.perform(post("/api/periodos-letivos")
+        @SuppressWarnings("null")
+		String responseBody = mockMvc.perform(post("/api/periodos-letivos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -233,7 +238,8 @@ class MatriculaControllerIntegrationTest {
                 }
                 """.formatted(codigo, periodoId);
 
-        String responseBody = mockMvc.perform(post("/api/turmas")
+        @SuppressWarnings("null")
+		String responseBody = mockMvc.perform(post("/api/turmas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -244,7 +250,8 @@ class MatriculaControllerIntegrationTest {
         return objectMapper.readTree(responseBody).get("id").asLong();
     }
 
-    private void criarMatricula(Long alunoId, Long turmaId, Long periodoId) throws Exception {
+    @SuppressWarnings("null")
+	private void criarMatricula(Long alunoId, Long turmaId, Long periodoId) throws Exception {
         String requestBody = """
                 {
                   "alunoId": %d,

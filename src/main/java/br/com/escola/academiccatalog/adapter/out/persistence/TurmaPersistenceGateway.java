@@ -3,6 +3,7 @@ package br.com.escola.academiccatalog.adapter.out.persistence;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import br.com.escola.academiccatalog.adapter.out.persistence.entity.PeriodoLetivoEntity;
@@ -27,7 +28,7 @@ public class TurmaPersistenceGateway implements TurmaGateway {
     }
 
     @Override
-    public Optional<TurmaOutput> findById(Long id) {
+    public Optional<TurmaOutput> findById(@NonNull Long id) {
         return turmaJpaRepository.findById(id).map(this::toOutput);
     }
 
@@ -36,7 +37,8 @@ public class TurmaPersistenceGateway implements TurmaGateway {
         return turmaJpaRepository.findByCodigoAndPeriodoLetivoId(codigo, periodoLetivoId).map(this::toOutput);
     }
 
-    @Override
+    @SuppressWarnings("null")
+	@Override
     public TurmaOutput save(TurmaInput input) {
         PeriodoLetivoEntity periodo = periodoLetivoJpaRepository.getReferenceById(input.periodoLetivoId());
         TurmaEntity entity = new TurmaEntity();

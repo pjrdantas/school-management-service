@@ -3,6 +3,7 @@ package br.com.escola.studentmanagement.adapter.out.persistence;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import br.com.escola.studentmanagement.adapter.out.persistence.entity.AlunoEntity;
@@ -38,12 +39,12 @@ public class AlunoPersistenceGateway implements AlunoCommandGateway, AlunoQueryG
     }
 
     @Override
-    public Optional<AlunoOutput> findById(Long id) {
+    public Optional<AlunoOutput> findById(@NonNull Long id) {
         return alunoJpaRepository.findById(id).map(this::toOutput);
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsById(@NonNull Long id) {
         return alunoJpaRepository.existsById(id);
     }
 

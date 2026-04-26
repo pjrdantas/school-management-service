@@ -1,6 +1,7 @@
 package br.com.escola.academiccatalog.adapter.in.web;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +39,7 @@ public class PeriodoLetivoController {
     }
 
     @GetMapping("/{id}")
-    public PeriodoLetivoResponse buscarPorId(@PathVariable Long id) {
+    public PeriodoLetivoResponse buscarPorId(@PathVariable @NonNull Long id) {
         return toResponse(buscarPeriodoLetivoPorIdUseCase.executar(id));
     }
 

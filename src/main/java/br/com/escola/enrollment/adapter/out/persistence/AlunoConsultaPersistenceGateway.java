@@ -1,5 +1,6 @@
 package br.com.escola.enrollment.adapter.out.persistence;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import br.com.escola.enrollment.application.port.out.AlunoConsultaGateway;
@@ -15,7 +16,7 @@ public class AlunoConsultaPersistenceGateway implements AlunoConsultaGateway {
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsById(@NonNull Long id) {
         return alunoJpaRepository.existsById(id);
     }
 }

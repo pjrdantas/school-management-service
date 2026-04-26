@@ -2,6 +2,7 @@ package br.com.escola.studentmanagement.adapter.in.web;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +37,7 @@ public class AlunoController {
     }
 
     @GetMapping("/{id}")
-    public AlunoResponse buscarPorId(@PathVariable Long id) {
+    public AlunoResponse buscarPorId(@PathVariable @NonNull Long id) {
         return toResponse(buscarAlunoPorIdUseCase.executar(id));
     }
 

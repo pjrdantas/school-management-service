@@ -1,5 +1,6 @@
 package br.com.escola.enrollment.adapter.out.persistence;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import br.com.escola.academiccatalog.adapter.out.persistence.repository.PeriodoLetivoJpaRepository;
@@ -15,7 +16,7 @@ public class PeriodoLetivoConsultaPersistenceGateway implements PeriodoLetivoCon
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsById(@NonNull Long id) {
         return periodoLetivoJpaRepository.existsById(id);
     }
 }

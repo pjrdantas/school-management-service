@@ -1,6 +1,8 @@
 package br.com.escola.enrollment.application.port.out;
 
+import org.springframework.lang.NonNull;
+
 public interface AlunoConsultaGateway {
 
-    boolean existsById(Long id);
+    boolean existsById(@NonNull Long id);
 }
